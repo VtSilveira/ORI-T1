@@ -1,0 +1,107 @@
+void* busca_binaria(const void *key, const void *base0, size_t nmemb, size_t size, int (*compar)(const void *, const void *), bool exibir_caminho, int retorno_se_nao_encontrado) {
+    size_t start = 0;
+    size_t end = nmemb - 1;
+    size_t mid;
+    void* mid_element;
+
+    //valores de floor e ceil que serão entregues caso não a key não seja encontrada
+    void* floor = NULL;
+    void* ceil = NULL;
+
+    //se o elemento é maior que o ultimo elemento do vetor, entao o ultimo é o floor e não possui ceil
+    if (compar((char*)base0 + (nmemb - 1) * size, key) < 0){
+        floor = (char*)base0 + (nmemb - 1) * size;
+
+        if (retorno_se_nao_encontrado == -1)
+            return floor;
+
+        if (retorno_se_nao_encontrado == 0)
+            return NULL;
+
+        if (retorno_se_nao_encontrado == 1)
+            return ceil; 
+    }
+
+    //se o elemento é menor que o primeiro elemento do vetor, entao o primeiro é o ceil e não possui floor
+    if (compar((char*)base0, key) > 0){
+        ceil = (char*)base0; 
+
+        if (retorno_se_nao_encontrado == -1)
+            return floor;
+
+        if (retorno_se_nao_encontrado == 0)
+            return NULL;
+
+        if (retorno_se_nao_encontrado == 1)
+            return ceil;
+    }
+
+    if(exibir_caminho){
+        int caminho;
+
+        printf(REGS_PERCORRIDOS);
+        while (start <= end) {
+
+            if ((end+1-start)%2 == 0)
+                mid = (start + (end - start) / 2) + 1;
+            else
+                mid = start + (end - start) / 2;
+           
+            mid_element = (char*)base0 + mid * size;
+
+            const void* p = mid_element;
+            
+            caminho = (p - base0) / size;
+            printf(" %d", caminho);
+            
+            int cmp = compar(mid_element, key);
+
+            if (cmp == 0) {
+                printf("\n");
+                return mid_element;
+            }
+            else if (cmp < 0) 
+                start = mid + 1;
+            else 
+                end = mid - 1;
+        }
+        printf("\n");
+    }else {
+
+        while (start <= end) {
+
+            size_t mid = start + (end - start) / 2;
+            mid_element = (char*)base0 + mid * size;
+
+            int cmp = compar(mid_element, key);
+
+            if (cmp == 0) 
+                return mid_element;
+            else if (cmp < 0)
+                start = mid + 1;
+            else
+                end = mid - 1;
+        }
+    }
+
+    if (compar(mid_element, key) < 0) { 
+        floor = mid_element;
+        ceil = (char*)base0 + (mid+1) * size;
+    }
+    
+    if (compar(mid_element, key) > 0) {
+        ceil = mid_element;
+        floor = (char*)base0 + (mid-1) * size;
+    }
+
+    if (retorno_se_nao_encontrado == -1)
+        return floor;
+
+    if (retorno_se_nao_encontrado == 0)
+        return NULL;
+
+    if (retorno_se_nao_encontrado == 1)
+        return ceil;
+
+    return NULL;
+}
